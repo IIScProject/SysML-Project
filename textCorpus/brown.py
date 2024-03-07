@@ -122,6 +122,7 @@ def train_test_slit(dataset, test_size = 0.1) :
 
      print("Train Split : ", len(train_dataset))
      print("Test Split : ", len(test_dataset))
+     return train_dataset, test_dataset
 
 def convert_sentence_to_one_hot_tensor(sentence: list, mapping: dict):
 
@@ -130,6 +131,7 @@ def convert_sentence_to_one_hot_tensor(sentence: list, mapping: dict):
     sentence_token_one_hot = torchFunctional.one_hot(sentence_tensor, num_classes=num_classes)
     sentence_token_one_hot = sentence_token_one_hot.float()
     return sentence_token_one_hot
+
 
 '''
 Driver code logic 
@@ -140,6 +142,4 @@ print(dataset_token[100])
 idx = 812
 print("Word at index : ", idx , " - ", reverse_mapping[idx])
 print("Index for word : ", reverse_mapping[idx],  " - " , idx)
-
-
 '''

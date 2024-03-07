@@ -49,13 +49,49 @@ class RNN(nn.Module) :
     def init_hidden(self):
         return nn.init.kaiming_uniform_(torch.empty(1, self.hidden_size))
 
+def train_model(model, criterion, optimizer, epochs, mini_batch_size) :
+    print("----------------Training Model---------------------------")
+    for epoch in range(epochs):
+        model.train()
+        mini_batches = len(train_dataset) // mini_batch_size
+        idx = 0
+        for mini_batch in range(mini_batches):
+            mini_batch_loss = 0
+            hidden_state = model.init_hidden()
+            total_dividend = 0
+            for _ in range(mini_batch_size):
+                sentence = train_dataset[idx]
+                idx += 1
+                idx = idx % len(train_dataset)
+                # Converting two one-hot vectors
+                sentence = brown.convert_sentence_to_one_hot_tensor(sentence=sentence, mapping=mapping)
+                sentence_loss = 0
+                total_dividend += len(sentence) - 1
+                for sentence_idx in range(len(sentence) - 1):
+                    input_vector = sentence[sentence_idx].float().reshape(1, -1)
+                    output_vector = sentence[sentence_idx + 1].float().reshape(1, -1)
+                    output_hat, hidden_state = model(input_vector, hidden_state)
+                    loss = criterion(output_vector, output_hat)
+                    if sentence_loss == 0:
+                        sentence_loss = loss
+                    else:
+                        sentence_loss += loss
+                if mini_batch_loss == 0:
+                    mini_batch_loss = sentence_loss
+                else:
+                    mini_batch_loss += sentence_loss
+            optimizer.zero_grad()
+            mini_batch_loss /= total_dividend
+            mini_batch_loss += utilities.l2_loss(model, lambda_l2=0.01)
+            mini_batch_loss.backward()
+            optimizer.step()
+            print(f"Epoch : {epoch + 1}, Min-batch : {mini_batch + 1}, training-loss : {mini_batch_loss}")
 
+    return model
 
 
 dataset, mapping, reverse_mapping = brown.dataset()
 train_dataset, test_dataset = brown.train_test_slit(dataset)
-print("Starting Train Test Split")
-# Splitting dataset into train, test, validation
 
 input_size = len(mapping)
 embedding_size = 300
@@ -68,47 +104,14 @@ mini_batch_size = 1024
 model = RNN(input_size = input_size, embedding_size= embedding_size, hidden_size= hidden_size, output_size= output_size)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-print("Model Summary")
+
+print("-------------------------Model Summary----------------------------------------")
 print(summary(model, input_size = [(1, input_size), (1, hidden_size)] , batch_size= -1))
 
-for epoch in range(epochs) :
-    model.train()
-    mini_batches = len(train_dataset) // mini_batch_size
-    idx = 0
-    for mini_batch in range(mini_batches) :
-        mini_batch_loss = 0
-        hidden_state = model.init_hidden()
-        total_dividend = 0
-        for _ in range(mini_batch_size) :
-            sentence = train_dataset[idx]
-            idx += 1
-            idx = idx % len(train_dataset)
-            # Converting two one-hot vectors
-            sentence = brown.convert_sentence_to_one_hot_tensor(sentence= sentence, mapping= mapping)
-            sentence_loss = 0
-            total_dividend += len(sentence) - 1
-            for sentence_idx in range(len(sentence) - 1) :
-                input_vector = sentence[sentence_idx].float().reshape(1, -1)
-                output_vector = sentence[sentence_idx + 1].float().reshape(1, -1)
-                output_hat, hidden_state = model(input_vector, hidden_state)
-                loss = criterion(output_vector, output_hat)
-                if sentence_loss == 0 :
-                    sentence_loss = loss
-                else :
-                    sentence_loss += loss
-            if mini_batch_loss == 0 :
-                mini_batch_loss = sentence_loss
-            else :
-                mini_batch_loss += sentence_loss
-        optimizer.zero_grad()
-        mini_batch_loss /= total_dividend
-        mini_batch_loss += utilities.l2_loss(model, lambda_l2= 0.01)
-        mini_batch_loss.backward()
-        optimizer.step()
-        print(f"Epoch : {epoch + 1}, Min-batch : {mini_batch + 1}, training-loss : {mini_batch_loss}")
+model = train_model(model= model, criterion= criterion, optimizer= optimizer, epochs= epochs, mini_batch_size= mini_batch_size)
 
+print("------------------------Saving Model Details----------------------------------")
+torch.save(model, "rnn_pytorch.pth")
 
-
-
-
-
+print("-----------------------Evaluation Metrics-------------------------------------")
+model = torch.load("rnn_pytorch.pth")
