@@ -49,7 +49,8 @@ class RNN(nn.Module) :
     def init_hidden(self):
         return nn.init.kaiming_uniform_(torch.empty(1, self.hidden_size))
 
-def train_model(model, criterion, optimizer, epochs, mini_batch_size) :
+
+def train_model(model, criterion, optimizer, epochs, mini_batch_size, train_dataset, test_dataset) :
     print("----------------Training Model---------------------------")
     for epoch in range(epochs):
         model.train()
@@ -90,6 +91,48 @@ def train_model(model, criterion, optimizer, epochs, mini_batch_size) :
     return model
 
 
+def train_model_cpu_gpu(model, criterion, optimizer, epochs, mini_batch_size, train_dataset, test_dataset, mapping, device) :
+    train_dataset = torch.tensor(train_dataset)
+    test_dataset = torch.tensor(test_dataset)
+    train_data_loader, test_data_loader = brown.transform_dataLoader(train_dataset=train_dataset,
+                                                                     test_dataset=test_dataset, batch_size=mini_batch_size)
+
+
+    print("----------------Training Model---------------------------")
+    for epoch in range(epochs):
+        for batch_idx, (data) in enumerate(train_data_loader):
+            model.train()
+            hidden_state = model.init_hidden()
+
+            data = torch.tensor(data)
+            data_onehot = torch.nn.functional.one_hot(data, num_classes= len(list(mapping.keys())))
+            data_onehot = data_onehot.float()
+            data_onehot.to(device)
+            input_vector = data_onehot[:, :-1, :]
+            output_vector = data_onehot[:, 1:, :]
+
+            hidden_state = hidden_state.to(device)
+            input_vector = input_vector.to(device)
+            output_vector = output_vector.to(device)
+
+            loss = 0
+            for sequence_length_idx in range(input_vector.shape[1]):
+                output_hat_vector, hidden_state = model(input_vector[:, sequence_length_idx, :], hidden_state)
+                if loss == 0:
+                    loss = criterion(output_vector[:, sequence_length_idx, :], output_hat_vector)
+                else:
+                    loss += criterion(output_vector[:, sequence_length_idx, :], output_hat_vector)
+
+            loss += utilities.l2_loss(model, lambda_l2=0.01)
+            optimizer.zero_grad()  # setting the initial gradient to 0
+            loss.backward()  # back-propagating the loss
+            optimizer.step()  # updating the weights and bias values for every single step.
+
+            print(f"Epoch : {epoch + 1}, Min-batch : {batch_idx + 1}, training-loss : {loss}")
+
+    return model
+
+
 dataset, mapping, reverse_mapping = brown.dataset()
 train_dataset, test_dataset = brown.train_test_slit(dataset)
 
@@ -101,14 +144,19 @@ learning_rate = 0.01
 epochs = 11
 mini_batch_size = 1024
 
-model = RNN(input_size = input_size, embedding_size= embedding_size, hidden_size= hidden_size, output_size= output_size)
+model = RNN(input_size = input_size, embedding_size= embedding_size,
+            hidden_size= hidden_size, output_size= output_size)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 print("-------------------------Model Summary----------------------------------------")
 print(summary(model, input_size = [(1, input_size), (1, hidden_size)] , batch_size= -1))
 
-model = train_model(model= model, criterion= criterion, optimizer= optimizer, epochs= epochs, mini_batch_size= mini_batch_size)
+model = train_model_cpu_gpu(model= model, criterion= criterion, optimizer= optimizer, epochs= epochs,
+                            mini_batch_size= mini_batch_size, train_dataset= train_dataset, test_dataset= test_dataset,
+                            mapping= mapping, device= device)
 
 print("------------------------Saving Model Details----------------------------------")
 torch.save(model, "rnn_pytorch.pth")

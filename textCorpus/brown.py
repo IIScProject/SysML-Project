@@ -3,6 +3,8 @@ from nltk.corpus import brown
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn.functional as torchFunctional
+from torch.utils.data import Dataset, DataLoader
+
 
 
 '''
@@ -32,7 +34,10 @@ Output : Nested of list of sentences
 def converting_dataset_fixed_sequence_length(dataset, sequence_length = 5) :
     converted_dataset = []
     for i in range(len(dataset)) :
-        if len(dataset) <= 5 :
+        if len(dataset) < sequence_length :
+            continue
+            converted_dataset.append(dataset[i])
+        elif len(dataset) == sequence_length :
             converted_dataset.append(dataset[i])
         else :
             for j in range(len(dataset[i]) - sequence_length) :
@@ -131,6 +136,11 @@ def convert_sentence_to_one_hot_tensor(sentence: list, mapping: dict):
     sentence_token_one_hot = torchFunctional.one_hot(sentence_tensor, num_classes=num_classes)
     sentence_token_one_hot = sentence_token_one_hot.float()
     return sentence_token_one_hot
+
+def transform_dataLoader(train_dataset, test_dataset, batch_size, shuffle = True ) :
+    train_dataset_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_dataset_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    return train_dataset_loader, test_dataset_loader
 
 
 '''
