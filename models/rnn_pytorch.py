@@ -239,6 +239,13 @@ mini_batch_size = 1024
 
 model = RNN_v2(input_size = input_size, embedding_size= embedding_size,
             hidden_size= hidden_size, output_size= output_size)
+# Loading model from checkpoint if exists
+checkpoint_dir = "../checkpoints/rnn_pytorch/"
+checkpoint_path = os.path.join(checkpoint_dir, f"rnn_pytorch.pth")
+if os.path.exists(checkpoint_path) :
+    model = torch.load(checkpoint_path)
+
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Device : ", device)
 model = model.to(device)
@@ -247,7 +254,6 @@ optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 print("-------------------------Model Summary----------------------------------------")
 print(summary(model, input_size = [(1, input_size), (1, hidden_size)] , batch_size= -1))
-
 model = train_model_cpu_gpu(model= model, criterion= criterion, optimizer= optimizer, epochs= epochs,
                             mini_batch_size= mini_batch_size, train_dataset= train_dataset, test_dataset= test_dataset,
                             mapping= mapping, device= device)
