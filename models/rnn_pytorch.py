@@ -1,4 +1,5 @@
 # Import  libraries
+import os
 import sys
 import torch
 from torch import nn
@@ -175,6 +176,14 @@ def train_model(model, criterion, optimizer, epochs, mini_batch_size, train_data
 #
 
 def train_model_cpu_gpu(model, criterion, optimizer, epochs, mini_batch_size, train_dataset, test_dataset, mapping, device) :
+
+    # Define checkpointing parameters
+    checkpoint_dir = "../checkpoints/rnn_pytorch/"
+    checkpoint_frequency = 10  # Save checkpoint after every 100 minibatches
+    min_loss_improvement = 0.0001  # Minimum improvement in loss to save a new checkpoint
+    best_loss = float('inf')
+
+
     train_dataset = torch.tensor(train_dataset)
     test_dataset = torch.tensor(test_dataset)
     train_data_loader, test_data_loader = brown.transform_dataLoader(train_dataset=train_dataset,
@@ -206,6 +215,14 @@ def train_model_cpu_gpu(model, criterion, optimizer, epochs, mini_batch_size, tr
 
             print(f"Epoch : {epoch + 1}, Min-batch : {batch_idx + 1}, training-loss : {loss}")
 
+            # Saving Checkpoints for model
+            if batch_idx % checkpoint_frequency == 0:
+                if loss < best_loss - min_loss_improvement:
+                    best_loss = loss
+                    # Saving Model
+                    checkpoint_path = os.path.join(checkpoint_dir, f"rnn_pytorch.pth")
+                    torch.save(model, checkpoint_path)
+                print(f"Model saved at : Epoch : {epoch + 1}, Min-batch : {batch_idx + 1}")
     return model
 
 
@@ -217,7 +234,7 @@ embedding_size = 300
 hidden_size = 256
 output_size = input_size
 learning_rate = 0.01
-epochs = 11
+epochs = 100
 mini_batch_size = 1024
 
 model = RNN_v2(input_size = input_size, embedding_size= embedding_size,
