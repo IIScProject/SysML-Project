@@ -3,10 +3,10 @@ import os
 import sys
 import torch
 from torch import nn
+sys.path.insert(1,'../')
 import textCorpus.brown as brown
 from torchsummary import  summary
 import utilities as utilities
-sys.path.insert(1,'../')
 
 '''
 Input  : Sentence (List of tokens for a sentence)
