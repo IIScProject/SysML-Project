@@ -4,10 +4,10 @@ import sys
 sys.path.insert(1,'../')
 import torch
 from torch import nn
+sys.path.insert(1,'../')
 import textCorpus.brown as brown
 from torchsummary import  summary
 import utilities as utilities
-torch.cuda.empty_cache()
 
 
 '''
