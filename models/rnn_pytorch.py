@@ -1,12 +1,13 @@
 # Import  libraries
 import os
 import sys
+sys.path.insert(1,'../')
 import torch
 from torch import nn
 import textCorpus.brown as brown
 from torchsummary import  summary
 import utilities as utilities
-sys.path.insert(1,'../')
+torch.cuda.empty_cache()
 
 
 '''
@@ -117,7 +118,7 @@ hidden_size = 256
 output_size = input_size
 learning_rate = 0.01
 epochs = 100
-mini_batch_size = 1024
+mini_batch_size = 512
 
 print("----------------Creating RNN Pytorch Model-----------------------")
 model = RNN_v2(input_size = input_size, embedding_size= embedding_size,
