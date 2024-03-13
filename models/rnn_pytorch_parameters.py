@@ -3,6 +3,8 @@ import sys
 sys.path.insert(1,'../')
 import torch
 import torchvision.models as models
+from torch import nn
+
 
 class RNN_v2(torch.nn.Module):
     def __init__(self, input_size, embedding_size, hidden_size, output_size):

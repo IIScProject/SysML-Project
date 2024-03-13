@@ -54,3 +54,9 @@ docs/_build/
 
 # .pth files
 *.pth
+*.stmp
+*.ttmp
+*.mpits
+*.err
+*.out
+*.mpit
