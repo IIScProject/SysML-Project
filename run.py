@@ -44,9 +44,16 @@ if __name__ == "__main__":
         '--l2_lambda', type=float, default=0.1,
         help='L2 regularization for training')
 
+    parser.add_argument(
+        '--get_params', type=bool, default=False,
+        help='Get Parameters for model')
+
     args = parser.parse_args()
     if args.model == 'rnn_pytorch' or args.model == 'rnn_pytorch_stack':
-        from models.rnn_pytorch_training import main
+        if not args.get_params :
+            from models.rnn_pytorch_training import main
+        else :
+            from models.rnn_pytorch_params import main
     else :
         exit("Invalid Model call")
 
