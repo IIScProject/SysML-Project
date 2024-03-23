@@ -1,9 +1,9 @@
 # Import  libraries
 import os
 import sys
+sys.path.insert(1,'../')
 import torch
 from torch import nn
-sys.path.insert(1,'../')
 import textCorpus.brown as brown
 from torchsummary import  summary
 import utilities as utilities
@@ -102,7 +102,7 @@ def train_model_cpu_gpu(model, criterion, optimizer, epochs, mini_batch_size,
             if batch_idx % checkpoint_frequency == 0:
                 if loss < best_loss - min_loss_improvement:
                     best_loss = loss
-                    torch.save(model, checkpoint_path) # Saving Model
+                    torch.save(model.state_dict(), checkpoint_path) # Saving Model
                 print(f"Model saved at : Epoch : {epoch + 1}, Min-batch : {batch_idx + 1}")
     return model
 
@@ -117,7 +117,7 @@ hidden_size = 256
 output_size = input_size
 learning_rate = 0.01
 epochs = 100
-mini_batch_size = 1024
+mini_batch_size = 512
 
 print("----------------Creating RNN Pytorch Model-----------------------")
 model = RNN_v2(input_size = input_size, embedding_size= embedding_size,

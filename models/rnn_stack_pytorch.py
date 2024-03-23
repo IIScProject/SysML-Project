@@ -5,7 +5,6 @@ import torch
 from torch import nn
 sys.path.insert(1,'../')
 import textCorpus.brown as brown
-from torchsummary import  summary
 import utilities as utilities
 
 
@@ -135,7 +134,7 @@ hidden_size = 256
 output_size = input_size
 learning_rate = 0.01
 epochs = 100
-mini_batch_size = 1024
+mini_batch_size = 512
 stack_length = 4
 
 print("----------------Creating RNN Pytorch Stack Model-----------------------")

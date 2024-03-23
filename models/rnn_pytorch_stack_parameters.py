@@ -4,9 +4,6 @@ import sys
 import torch
 from torch import nn
 sys.path.insert(1,'../')
-import textCorpus.brown as brown
-from torchsummary import  summary
-import utilities as utilities
 
 
 class RNN_stack(nn.Module) :
@@ -83,6 +80,7 @@ class RNN_stack(nn.Module) :
 def get_rnn_stack_parameter():
     checkpoint_dir = "../checkpoints/rnn_pytorch/"
     checkpoint_path = os.path.join(checkpoint_dir, f"rnn_pytorch_stack.pth")
+    print(checkpoint_path)
     model = torch.load(checkpoint_path)
     
     embedding_paramaters = []
