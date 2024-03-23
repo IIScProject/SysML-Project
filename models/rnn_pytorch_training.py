@@ -5,7 +5,7 @@ from argparse import Namespace
 from torch import nn
 from enums import enums_rnn_pytorch as enums
 import textCorpus.brown as brown
-from models.rnn_pytorch_models import RNN_v2, RNN_stack
+from models.rnn_pytorch_models import RNN_v2, RNN_stack, RNNStandard
 from models.utilities import l2_loss
 import sys
 sys.path.insert(1,'../')
@@ -41,6 +41,9 @@ def main(args : Namespace) :
     epochs = enums.EPOCHS
     mini_batch_size = enums.MINI_BATCH_SIZE
     stack_length = enums.STACK_LENGTH
+    sequence_length = enums.SEQ_LENGTH
+    print("---------------------------------->", sequence_length)
+
     print("Device : ", enums.DEVICE)
 
     print("----------------Creating RNN Pytorch Model-----------------------")
@@ -51,6 +54,11 @@ def main(args : Namespace) :
         model = RNN_stack(input_size=input_size, embedding_size=embedding_size,
                        hidden_size=hidden_size, output_size=output_size,
                           stack_length= stack_length, device = enums.DEVICE)
+    elif args.model == 'rnn_pytorch_standard' :
+        model = RNNStandard(input_size=input_size, embedding_size=embedding_size,
+                          hidden_size=hidden_size, num_layers= stack_length,
+                         device=enums.DEVICE)
+
 
     model.to(enums.DEVICE)
     print(type(model))
@@ -61,7 +69,7 @@ def main(args : Namespace) :
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-    if args.model == "rnn_pytorch" :
+    if args.model == "rnn_pytorch" or args.model == "rnn_pytorch_standard" :
         model = train_model(model=model, criterion=criterion, optimizer=optimizer, epochs=epochs,
                             mini_batch_size=mini_batch_size, train_dataset=train_dataset, test_dataset=test_dataset,
                             mapping=mapping, device=enums.DEVICE, checkpoint_path=enums.CHECKPOINT_PATH)

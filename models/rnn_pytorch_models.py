@@ -3,6 +3,7 @@ import os
 import sys
 import torch
 from torch import nn
+from enums import enums_rnn_pytorch as enums
 
 class RNN_v2(nn.Module):
     def __init__(self, input_size, embedding_size, hidden_size, output_size):
@@ -116,3 +117,25 @@ class RNN_stack(nn.Module):
         output_hat_stack = self.softmax(output_hat_stack)
         return output_hat_stack
 
+
+class RNNStandard(nn.Module):
+    def __init__(self, input_size, hidden_size, embedding_size, num_layers, device):
+        super(RNNStandard, self).__init__()
+        self.hidden_size = hidden_size
+        self.embedding = nn.Embedding(input_size, embedding_size)
+        self.rnn = nn.RNN(embedding_size, hidden_size, num_layers, batch_first=False)
+        self.fc = nn.Linear(hidden_size, input_size)
+        self.device = device
+        self.input_size = input_size
+        self.num_layers = num_layers
+        self.embedding_size = embedding_size
+
+    def forward(self, input, hidden):
+        embedded = nn.Linear(in_features= input.shape[-1], out_features= self.embedding_size).to(self.device)(input)
+        output, hidden = self.rnn(embedded, hidden)
+        output = nn.Linear(in_features= output.shape[-1], out_features= self.input_size).to(self.device)(output)
+        output = nn.functional.log_softmax(output, dim=1)  # Applying log_softmax to get log probabilities
+        return output
+
+    def init_hidden(self):
+        return torch.zeros(enums.STACK_LENGTH, enums.SEQ_LENGTH - 1, self.hidden_size)

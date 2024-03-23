@@ -5,7 +5,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='Sys ML Project')
     parser.add_argument(
         '--model', type=str, default='rnn_pytorch', choices=
-        ['rnn_pytorch', 'rnn_pytorch_stack', 'lstm_pytorch', 'lstm_pytorch_stack'],
+        ['rnn_pytorch', 'rnn_pytorch_stack', 'rnn_pytorch_standard','lstm_pytorch', 'lstm_pytorch_stack'],
         help='Model'
     )
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         help='Get Parameters for model')
 
     args = parser.parse_args()
-    if args.model == 'rnn_pytorch' or args.model == 'rnn_pytorch_stack':
+    if args.model == 'rnn_pytorch' or args.model == 'rnn_pytorch_stack' or args.model == 'rnn_pytorch_standard':
         if not args.get_params :
             from models.rnn_pytorch_training import main
         else :
