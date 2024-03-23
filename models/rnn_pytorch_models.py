@@ -94,14 +94,14 @@ class RNN_stack(nn.Module):
     def init_hidden(self):
         return nn.init.kaiming_uniform_(torch.empty(self.stack_length, self.hidden_size))
 
-    def forward(self, input, hidden_states, stack_length):
+    def forward(self, input, hidden):
         # print("Input : ", input.shape)
         # print("Hidden State : ", hidden_states.shape)
         # print("Stack Len : ", stack_length)
         input = self.embedding(input)
-        for stack_idx in range(stack_length):
+        for stack_idx in range(enums.STACK_LENGTH):
             output_hat_ls = []
-            hidden_state = hidden_states[stack_idx]
+            hidden_state = hidden[stack_idx]
             hidden_state = hidden_state.to(self.device)
             for sequence_length_idx in range(input.shape[1]):
                 output_hat_vector, hidden_state = self.rnn_cell(input[:, sequence_length_idx, :], hidden_state,
