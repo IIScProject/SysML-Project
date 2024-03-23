@@ -1,5 +1,8 @@
 import os
 import sys
+
+from textCorpus import brown
+
 sys.path.insert(1,'../')
 import torch
 import torchvision.models as models
@@ -27,10 +30,26 @@ class RNN_v2(torch.nn.Module):
 # torch_model = torch.load("/Users/avneeshgautam29/Documents/SysML/SysML-Project/checkpoints/rnn_pytorch/rnn_pytorch.pth")
 
 def get_rnn_parameter():
+    print("-----------------Loading Dataset---------------------------------")
+    dataset, mapping, reverse_mapping = brown.dataset()
+    train_dataset, test_dataset = brown.train_test_slit(dataset)
+    print("-----------------Initialization of Params------------------------")
+    input_size = len(mapping)
+    embedding_size = 300
+    hidden_size = 256
+    output_size = input_size
+    learning_rate = 0.01
+    epochs = 100
+    mini_batch_size = 512
+
+    print("----------------Creating RNN Pytorch Model-----------------------")
+    model = RNN_v2(input_size=input_size, embedding_size=embedding_size,
+                   hidden_size=hidden_size, output_size=output_size)
 
     checkpoint_dir = "../checkpoints/rnn_pytorch/"
     checkpoint_path = os.path.join(checkpoint_dir, f"rnn_pytorch.pth")
-    model = torch.load(checkpoint_path)
+    # model = RNN_v2()
+    model.load_state_dict(torch.load(checkpoint_path))
     # embedding parameters
     embedding_params = model.embedding.parameters()
     embedding_paramaters = []
