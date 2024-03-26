@@ -3,6 +3,7 @@ import os
 import sys
 import torch
 from torch import nn
+from enums import enums_rnn_pytorch as enums
 
 class RNN_v2(nn.Module):
     def __init__(self, input_size, embedding_size, hidden_size, output_size):
@@ -93,14 +94,14 @@ class RNN_stack(nn.Module):
     def init_hidden(self):
         return nn.init.kaiming_uniform_(torch.empty(self.stack_length, self.hidden_size))
 
-    def forward(self, input, hidden_states, stack_length):
+    def forward(self, input, hidden):
         # print("Input : ", input.shape)
         # print("Hidden State : ", hidden_states.shape)
         # print("Stack Len : ", stack_length)
         input = self.embedding(input)
-        for stack_idx in range(stack_length):
+        for stack_idx in range(enums.STACK_LENGTH):
             output_hat_ls = []
-            hidden_state = hidden_states[stack_idx]
+            hidden_state = hidden[stack_idx]
             hidden_state = hidden_state.to(self.device)
             for sequence_length_idx in range(input.shape[1]):
                 output_hat_vector, hidden_state = self.rnn_cell(input[:, sequence_length_idx, :], hidden_state,
@@ -116,3 +117,25 @@ class RNN_stack(nn.Module):
         output_hat_stack = self.softmax(output_hat_stack)
         return output_hat_stack
 
+
+class RNNStandard(nn.Module):
+    def __init__(self, input_size, hidden_size, embedding_size, num_layers, device):
+        super(RNNStandard, self).__init__()
+        self.hidden_size = hidden_size
+        self.embedding = nn.Embedding(input_size, embedding_size)
+        self.rnn = nn.RNN(embedding_size, hidden_size, num_layers, batch_first=False)
+        self.fc = nn.Linear(hidden_size, input_size)
+        self.device = device
+        self.input_size = input_size
+        self.num_layers = num_layers
+        self.embedding_size = embedding_size
+
+    def forward(self, input, hidden):
+        embedded = nn.Linear(in_features= input.shape[-1], out_features= self.embedding_size).to(self.device)(input)
+        output, hidden = self.rnn(embedded, hidden)
+        output = nn.Linear(in_features= output.shape[-1], out_features= self.input_size).to(self.device)(output)
+        output = nn.functional.log_softmax(output, dim=1)  # Applying log_softmax to get log probabilities
+        return output
+
+    def init_hidden(self):
+        return torch.zeros(enums.STACK_LENGTH, enums.SEQ_LENGTH - 1, self.hidden_size)

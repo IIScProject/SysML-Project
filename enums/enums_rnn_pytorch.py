@@ -8,7 +8,6 @@ MINI_BATCH_SIZE = 512
 DEVICE_CUDA = 'cuda'
 DEVICE_CPU = 'cpu'
 CHECKPOINT_DIR = "../checkpoints/rnn_pytorch/"
-CHECKPOINT_FILE_RNN_V2 = "rnn_pytorch.pth"
 CHECKPOINT_PATH = None
 DEVICE = device = torch.device(DEVICE_CUDA if torch.cuda.is_available() else DEVICE_CPU)
 CHECKPOINT_FREQ = 50
@@ -16,5 +15,4 @@ MIN_LOSS_IMPROVEMENT = 0.0001
 BEST_LOSS = float('inf')
 STACK_LENGTH = 4
 L2_LAMBDA = 0.01
-STACK_LENGTH = 4
 SEQ_LENGTH = 5
