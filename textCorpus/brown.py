@@ -14,12 +14,12 @@ Output : Nested list token words
 '''
 
            
-def dataset() :
+def dataset(sequence_length = 5) :
     print("Importing Brown dataset")
     nltk.download('brown')
     sentences = brown.sents() 
     dataset = data_preprocessing(dataset= sentences)
-    dataset = converting_dataset_fixed_sequence_length(dataset= dataset)
+    dataset = converting_dataset_fixed_sequence_length(dataset= dataset, sequence_length= sequence_length)
     mapping , words  = get_vocab(dataset= dataset)
     dataset_tokens = convert_word_to_index(dataset= dataset, mapping= mapping)
     reverse_mapping = reverse_dict(mapping= mapping)

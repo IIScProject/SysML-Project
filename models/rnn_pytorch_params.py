@@ -1,4 +1,5 @@
 # Import  libraries
+from argparse import Namespace
 import os
 import torch
 import textCorpus.brown as brown
@@ -6,7 +7,6 @@ from enums import  enums_rnn_pytorch as enums
 from argparse import Namespace
 
 from models.rnn_pytorch_models import RNN_v2, RNN_stack,RNNStandard
-
 
 def main(args : Namespace) :
     '''
@@ -26,7 +26,7 @@ def main(args : Namespace) :
     enums.SEQ_LENGTH = args.sequence_length
 
     print("-----------------Loading Dataset---------------------------------")
-    dataset, mapping, reverse_mapping = brown.dataset()
+    dataset, mapping, reverse_mapping = brown.dataset(enums.SEQ_LENGTH)
     print("-----------------Initialization of Params------------------------")
     input_size = len(mapping)
     embedding_size = enums.EMBEDDING_SIZE
@@ -100,7 +100,6 @@ def main(args : Namespace) :
             for param in i.parameters():
                 v_paramaters.append(param)
 
-
     if args.model == "rnn_pytorch_standard" :
         model.load_state_dict(torch.load(enums.CHECKPOINT_PATH))
         model.to(enums.DEVICE)
@@ -134,7 +133,8 @@ def main(args : Namespace) :
         weight_paramaters = model.fc.weight
         bias_paramaters = model.fc.bias
 
-        return embedding_paramaters,weight_paramaters,weight_ih_parameters,weight_hh_parameters,bias_ih_parameters,bias_hh_parameters,bias_paramaters
+        return dataset, mapping, reverse_mapping, embedding_paramaters,weight_paramaters,weight_ih_parameters,weight_hh_parameters,bias_ih_parameters,bias_hh_parameters,bias_paramaters
 
-        
-    return embedding_paramaters, weight_paramaters, u_paramaters, v_paramaters
+
+    return dataset, mapping, reverse_mapping, embedding_paramaters, weight_paramaters, u_paramaters, v_paramaters
+

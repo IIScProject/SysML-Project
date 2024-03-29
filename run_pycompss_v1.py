@@ -1,13 +1,11 @@
 from argparse import ArgumentParser
 
-import enums.enums_rnn_pytorch
-
 if __name__ == "__main__":
     # Parse the command line arguments
     parser = ArgumentParser(description='Sys ML Project')
     parser.add_argument(
         '--model', type=str, default='rnn_pytorch', choices=
-        ['rnn_pytorch', 'rnn_pytorch_stack', 'rnn_pytorch_standard','lstm_pytorch', 'lstm_pytorch_stack','rnn_tensorflow','rnn_tensorflow_stack','rnn_tensorflow_standard'],
+        ['rnn_pytorch', 'rnn_pytorch_stack', 'rnn_pytorch_standard','lstm_pytorch', 'lstm_pytorch_stack'],
         help='Model'
     )
 
@@ -56,23 +54,8 @@ if __name__ == "__main__":
             from models.rnn_pytorch_training import main
         else :
             from models.rnn_pytorch_params import main
-        
-    elif args.model == 'rnn_tensorflow' or args.model == 'rnn_tensorflow_stack' or args.model == 'rnn_tensorflow_standard':
-        if not args.get_params :
-            from models.rnn_tensorflow_training import main
-        else :
-            from models.rnn_tensorflow_params import main
-
     else :
         exit("Invalid Model call")
 
     # Run the main function
-    dataset, mapping, reverse_mapping, embedding_paramaters, weight_paramaters, u_paramaters, v_paramaters = main(args)
-
-    if args.get_params == True :
-        from models.rnn_cell_structure import inference
-        inference(dataset = dataset, mapping = mapping, reverse_mapping =reverse_mapping,
-                  embedding_paramaters = embedding_paramaters, weight_paramaters =weight_paramaters,
-                  u_paramaters = u_paramaters, v_paramaters = v_paramaters,
-                  batch_size = args.batch_size, sequence_length = args.sequence_length,
-                  stack_length = args.stack_length, hidden_size = enums.enums_rnn_pytorch.HIDDEN_SIZE )
+    output = main(args)
