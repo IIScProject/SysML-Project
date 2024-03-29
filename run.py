@@ -7,7 +7,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='Sys ML Project')
     parser.add_argument(
         '--model', type=str, default='rnn_pytorch', choices=
-        ['rnn_pytorch', 'rnn_pytorch_stack', 'rnn_pytorch_standard','lstm_pytorch', 'lstm_pytorch_stack'],
+        ['rnn_pytorch', 'rnn_pytorch_stack', 'rnn_pytorch_standard','lstm_pytorch', 'lstm_pytorch_stack','rnn_tensorflow','rnn_tensorflow_stack','rnn_tensorflow_standard'],
         help='Model'
     )
 
@@ -56,6 +56,13 @@ if __name__ == "__main__":
             from models.rnn_pytorch_training import main
         else :
             from models.rnn_pytorch_params import main
+        
+    elif args.model == 'rnn_tensorflow' or args.model == 'rnn_tensorflow_stack' or args.model == 'rnn_tensorflow_standard':
+        if not args.get_params :
+            from models.rnn_tensorflow_training import main
+        else :
+            from models.rnn_tensorflow_params import main
+
     else :
         exit("Invalid Model call")
 
@@ -69,4 +76,3 @@ if __name__ == "__main__":
                   u_paramaters = u_paramaters, v_paramaters = v_paramaters,
                   batch_size = args.batch_size, sequence_length = args.sequence_length,
                   stack_length = args.stack_length, hidden_size = enums.enums_rnn_pytorch.HIDDEN_SIZE )
-
