@@ -30,7 +30,7 @@ def main(args : Namespace) :
     enums.SEQ_LENGTH = args.sequence_length
 
     print("-----------------Loading Dataset---------------------------------")
-    dataset, mapping, reverse_mapping = brown.dataset()
+    dataset, mapping, reverse_mapping = brown.dataset(enums.SEQ_LENGTH)
     train_dataset, test_dataset = brown.train_test_slit(dataset)
     print("-----------------Initialization of Params------------------------")
     input_size = len(mapping)

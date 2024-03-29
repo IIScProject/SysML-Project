@@ -1,7 +1,5 @@
 from argparse import ArgumentParser
 
-import enums.enums_rnn_pytorch
-
 if __name__ == "__main__":
     # Parse the command line arguments
     parser = ArgumentParser(description='Sys ML Project')
@@ -60,13 +58,4 @@ if __name__ == "__main__":
         exit("Invalid Model call")
 
     # Run the main function
-    dataset, mapping, reverse_mapping, embedding_paramaters, weight_paramaters, u_paramaters, v_paramaters = main(args)
-
-    if args.get_params == True :
-        from models.rnn_cell_structure import inference
-        inference(dataset = dataset, mapping = mapping, reverse_mapping =reverse_mapping,
-                  embedding_paramaters = embedding_paramaters, weight_paramaters =weight_paramaters,
-                  u_paramaters = u_paramaters, v_paramaters = v_paramaters,
-                  batch_size = args.batch_size, sequence_length = args.sequence_length,
-                  stack_length = args.stack_length, hidden_size = enums.enums_rnn_pytorch.HIDDEN_SIZE )
-
+    output = main(args)
